@@ -32,25 +32,27 @@ int inPin = 7;   // sensing digital pin 7
 int val;
 int bitlenctr = 0;
 int curState = 0;
+
+const int pwmPin = 11; // 11,12 for Arduino Mega
+const int redLED = 10;
+const int grnLED = 9;
  
-#define maxBuf 1000 //reduce to 100 or so for debugging
+#define maxBuf 100 //reduce to 100 or so for debugging
 #define debug  0
  
 char raw[maxBuf];
  
 int index = 0;
 int bufnum = 0;
-#define   redLED 12
-#define   grnLED 11
  
 void setup()
 {
   Serial.begin(9600);
-  Timer1.initialize(8);  // initialize timer1, and set the frequency; this drives both the LC tank as well as the pulse timing clock
+  Timer1.initialize(7.5);  // initialize timer1, and set the frequency; this drives both the LC tank as well as the pulse timing clock
   // note: modify this as needed to achieve resonance and good match with the desired tags
   // the argument value is in microseconds per RF cycle, so 8us will yield RF of 125kHz, 7us --> 143kHz, etc.
  
-  Timer1.pwm(9, 512);           // setup pwm on pin 9, 50% duty cycle
+  Timer1.pwm(pwmPin, 512);           // setup pwm on pin 9, 50% duty cycle
   Timer1.attachInterrupt(callback);  // attaches callback() as a timer overflow interrupt, once per RF cycle
  
   pinMode(ledPin, OUTPUT);      // sets the digital pin 13 as output for scope monitoring
@@ -81,8 +83,11 @@ void callback()
  
 void loop()
 { 
-  Serial.print("Pin 7: ");
-  Serial.println(digitalRead(inPin));
+  if(index % 10 == 0)
+    Serial.println(index);
+  
+  //Serial.print("Pin 7: ");
+  //Serial.println(analogRead(A0));
   if(index >= maxBuf) {
  
     Serial.print("got buf num: ");
